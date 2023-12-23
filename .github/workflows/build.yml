@@ -14,6 +14,10 @@ jobs:
         id: core
         run: brew install coreutils ldid
 
+      - name: Run Main Node Script to Patch Rosiecord
+        id: build
+        run: node ./index.js
+
       - name: Retrieve version
         id: version
         run: |
@@ -34,10 +38,6 @@ jobs:
           url: https://github.com/SerStars/rosiecord-appicon/releases
           content: <@861631850681729045>
           color: 0x000001
-
-      - name: Run Main Node Script to Patch Rosiecord
-        id: build
-        run: node ./index.js 
 
       - name: Create release
         uses: marvinpinto/action-automatic-releases@latest
