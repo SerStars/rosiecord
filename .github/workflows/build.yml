@@ -1,11 +1,11 @@
-name: Build Enmity and Inject Rosiecord
+name: Build Enmity and Inject Rosiecord-apppicon
 on:
   push:
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build Enmity and Inject Rosiecord
+    name: Build Enmity and Inject Rosiecord-appicon
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -14,15 +14,30 @@ jobs:
         id: core
         run: brew install coreutils ldid
 
-      - name: Run Main Node Script to Patch Rosiecord
-        id: build
-        run: node ./index.js
-        
       - name: Retrieve version
         id: version
         run: |
           cd ./ipas
-          echo "__DISCORD_VERSION=$(ls | grep Discord | sed -e s/[^0-9.]//g | sed -e s/[/.+?\./]//g)" >> $GITHUB_OUTPUT  
+          echo "__DISCORD_VERSION=$(ls | grep Discord | sed -e s/[^0-9.]//g | sed -e s/[/.+?\./]//g)" >> $GITHUB_OUTPUT 
+
+      - name: Actions Status Discord Started
+        uses: sarisia/actions-status-discord@v1.13.0
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          nodetail: true
+          title: Building a new version of `Rosiecord-appicon`...
+          description: | 
+            Version `${{ steps.version.outputs.__DISCORD_VERSION }}` is being build...
+            I will send another message whenever its done
+          url: https://github.com/SerStars/rosiecord-appicon/releases
+          content: <@861631850681729045>
+          color: 0x000001
+
+      - name: Run Main Node Script to Patch Rosiecord
+        id: build
+        run: node ./index.js 
 
       - name: Create release
         uses: marvinpinto/action-automatic-releases@latest
@@ -32,3 +47,19 @@ jobs:
           automatic_release_tag: rosiecord_${{ steps.version.outputs.__DISCORD_VERSION }}
           title: Rosiecord ${{ steps.version.outputs.__DISCORD_VERSION }}
           files: Dist/*.ipa
+
+      - name: Actions Status Discord Done
+        uses: sarisia/actions-status-discord@v1.13.0
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          nodetail: true
+          title: A new version of `Rosiecord-appicon` is ready!
+          description: |
+            This is a special Rosiecord release, same as the normal one but you can use the App Icons (if you don't have nitro use [this](https://canary.discord.com/channels/950850315601711176/961782195767365732/1161787573514031174) plugin) 
+            Version `${{ steps.version.outputs.__DISCORD_VERSION }}`
+            Click [here](https://github.com/SerStars/rosiecord-appicon/releases/latest) to download
+          url: https://github.com/SerStars/rosiecord/releases
+          content: <@861631850681729045>
+          color: 0x000001
