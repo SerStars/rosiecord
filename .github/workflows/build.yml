@@ -5,10 +5,25 @@ on:
 
 jobs:
   build:
+
     name: Build Enmity and Inject Rosiecord
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Actions Status Discord Started
+        uses: sarisia/actions-status-discord@v1.13.0
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          nodetail: true
+          title: Building a new version of `Rosiecord`...
+          description: | 
+            I will send another message once its done
+          url: https://github.com/SerStars/rosiecord/releases
+          content: <@861631850681729045>
+          color: 0x000001
 
       - name: Ensure main utils are installed
         id: core
@@ -23,21 +38,6 @@ jobs:
         run: |
           cd ./ipas
           echo "__DISCORD_VERSION=$(ls | grep Discord | sed -e s/[^0-9.]//g | sed -e s/[/.+?\./]//g)" >> $GITHUB_OUTPUT 
-
-      - name: Actions Status Discord Started
-        uses: sarisia/actions-status-discord@v1.13.0
-        if: success()
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        with:
-          nodetail: true
-          title: Building a new version of `Rosiecord`...
-          description: | 
-            Version `${{ steps.version.outputs.__DISCORD_VERSION }}` is being build...
-            I will send another message whenever its done
-          url: https://github.com/SerStars/rosiecord/releases
-          content: <@861631850681729045>
-          color: 0x000001
 
       - name: Create release
         uses: marvinpinto/action-automatic-releases@latest
