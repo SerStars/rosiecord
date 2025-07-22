@@ -1,5 +1,8 @@
 # Rosiecord
 
+> [!NOTE]
+> Enmity has been sunset. No more new updates.
+
 ## A custom Enmity patcher with interchangeable fonts, icons, and tweaks :3
 
 ### How to install
